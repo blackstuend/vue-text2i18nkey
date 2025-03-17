@@ -1,0 +1,60 @@
+{
+  "name": "vue-vite-ai-i18n",
+  "type": "module",
+  "version": "0.1.9",
+  "description": "Vite project set i18n and translate with AI",
+  "author": "Lucian",
+  "license": "MIT",
+  "homepage": "https://github.com/blackstuend/vite-vue-autoAI-i18n",
+  "keywords": [
+    "vue",
+    "vite",
+    "i18n",
+    "internationalization",
+    "translation",
+    "ai",
+    "openai",
+    "cli",
+    "automation",
+    "vue3",
+    "auto-i18n",
+    "auto"
+  ],
+  "bin": {
+    "vue-vite-ai-i18n": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "start": "esno src/index.ts",
+    "watch": "unbuild --watch",
+    "build": "unbuild",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@antfu/eslint-config": "^3.12.1",
+    "@intlify/unplugin-vue-i18n": "^6.0.3",
+    "@vue/compiler-sfc": "^3.5.13",
+    "chalk": "^5.4.1",
+    "dotenv": "^16.4.7",
+    "esno": "^4.8.0",
+    "execa": "^9.5.2",
+    "fast-glob": "^3.3.2",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^12.3.0",
+    "js-yaml": "^4.1.0",
+    "openai": "^4.77.0",
+    "typescript": "^5.7.2",
+    "vue-i18n": "^11.0.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.17.0",
+    "unbuild": "^3.2.0"
+  }
+}
