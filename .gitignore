@@ -1,2 +1,15 @@
+.DS_Store
+.vite-ssg-dist
+.vite-ssg-temp
+*.local
+dist
+dist-ssr
 node_modules
+.idea/
+*.log
+
+auto-imports*
+components.d.ts
+vite.config.ts.time*
+dev-dist
 .env

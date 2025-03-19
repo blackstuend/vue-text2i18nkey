@@ -1,17 +1,17 @@
-import { askAI } from "./ai";
-import { extractVueCode, flattenObject } from "./utils";
+import { askAI, askAIWithAssistant } from "./ai";
+import { extractVueCode, flattenObject, replaceCode, getSearchReplaceBlocks } from "./utils";
 import { prompt as findTextSystemPrompt } from "./prompt/findText";
 import { I18nTable } from "./types";
 import fs from 'fs-extra';
 import { prompt as genKeySystemPrompt } from "./prompt/genKey";
 import { unflattenObject } from "./utils";
-import { prompt as updateVueSystemPrompt } from "./prompt/vueReplacer";
-import { getSearchReplaceBlocks, replaceCode } from "./utils";
+import { prompt as genVueDiffSystemPrompt } from "./prompt/genVueDiff";
+import { prompt as genFullVueSystemPrompt } from "./prompt/genFullVue";
 
 export async function findNeedToTranslateTexts(filePath: string) {
     const code = extractVueCode(filePath);
 
-    const response = await askAI('deepseek/deepseek-chat', findTextSystemPrompt, code);
+    const response = await askAI('google/gemini-2.0-flash-001', findTextSystemPrompt, code);
 
     if(!response) {
         return [];
@@ -30,10 +30,9 @@ export async function findNeedToTranslateTexts(filePath: string) {
     }
 }
 
-export async function createI18nTable(filePath: string ,texts: string[], localeFilePath: string): Promise<I18nTable[]> {
-    const localJson = fs.readJSONSync(localeFilePath);
+export async function createI18nTable(localeJson: Object, texts: string[], filePath: string): Promise<I18nTable[]> {
 
-    const flattenLocalJson = flattenObject(localJson);
+    const flattenLocalJson = flattenObject(localeJson);
 
     const tempTable: {
         value: string;
@@ -54,7 +53,6 @@ export async function createI18nTable(filePath: string ,texts: string[], localeF
         FilePath: ${filePath}
         Texts: ${JSON.stringify(tempTable)}
         `);
-    
     if (!response) {
         return [];
     }
@@ -79,9 +77,7 @@ export async function createI18nTable(filePath: string ,texts: string[], localeF
     return i18nTable;
 }
 
-export async function updateLocalFile(filePath: string, i18nTable: I18nTable[]) {
-    const localJson = fs.readJSONSync(filePath);
-
+export async function combinedLocaleFile(localeJson: Object, i18nTable: I18nTable[]): Promise<Object> {
     const i18nTableMap = i18nTable.reduce((acc, item) => {
         acc[item.key] = item.value;
         return acc;
@@ -89,29 +85,50 @@ export async function updateLocalFile(filePath: string, i18nTable: I18nTable[]) 
 
     const unflattenLocalJson = unflattenObject(i18nTableMap);
 
-
     // combine the localJson and unflattenLocalJson
-    const combinedJson = { ...localJson, ...unflattenLocalJson };
+    // Deep merge the locale objects to prevent overwriting nested objects
+    const combinedJson = { ...localeJson };
+    
+    // Recursively merge objects
+    const deepMerge = (target: any, source: any) => {
+      for (const key in source) {
+        if (source[key] instanceof Object && key in target && target[key] instanceof Object) {
+          // If both values are objects, merge them recursively
+          deepMerge(target[key], source[key]);
+        } else {
+          // Otherwise just assign the value
+          target[key] = source[key];
+        }
+      }
+    };
+    
+    deepMerge(combinedJson, unflattenLocalJson);
 
-    fs.writeJSONSync(filePath, combinedJson, {
-        spaces: 2,
-        EOL: '\n'
-    });
+    return combinedJson;
 }
 
-export async function updateVueFile(filePath: string, i18nTable: I18nTable[]) {
-    const originCode = fs.readFileSync(filePath, 'utf-8') + '\n';
+export async function updateVueFile(filePath: string, i18nTable: I18nTable[], useDiff: boolean) {
+    const originCode = fs.readFileSync(filePath, 'utf-8');
 
-    const response = await askAI('google/gemini-2.0-flash-001', updateVueSystemPrompt, originCode);
+    const assistantPrompt = `
+    I18nTable: ${JSON.stringify(i18nTable)}
+    `;
 
-    if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
+    if(useDiff) {
+      const response = await askAIWithAssistant('google/gemini-2.0-flash-001', genVueDiffSystemPrompt, assistantPrompt, originCode);
+
+      if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
+
+      const searchReplaceBlocks = getSearchReplaceBlocks(response).reverse();
+
+      const updatedCode = replaceCode(originCode, searchReplaceBlocks);
   
-    const matches = getSearchReplaceBlocks(response).reverse();
+      fs.writeFileSync(filePath, updatedCode);
+    } else {
+      const response = await askAIWithAssistant('google/gemini-2.0-flash-001', genFullVueSystemPrompt, assistantPrompt, originCode);
 
-    console.log('response', response)
+      if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
 
-    let newCode = replaceCode(originCode, matches);
-
-
-    fs.writeFileSync(filePath, newCode);
-}
+      fs.writeFileSync(filePath, response);
+    }
+  }

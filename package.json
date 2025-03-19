@@ -1,11 +1,11 @@
 {
-  "name": "vue-vite-ai-i18n",
+  "name": "vue-chinese2i18n",
   "type": "module",
-  "version": "0.1.9",
-  "description": "Vite project set i18n and translate with AI",
+  "version": "0.1.1",
+  "description": "快速將vue文件中的中文轉換為i18n函數調用",
   "author": "Lucian",
   "license": "MIT",
-  "homepage": "https://github.com/blackstuend/vite-vue-autoAI-i18n",
+  "homepage": "https://github.com/blackstuend/vue-chinese2i18n",
   "keywords": [
     "vue",
     "vite",
@@ -21,7 +21,7 @@
     "auto"
   ],
   "bin": {
-    "vue-vite-ai-i18n": "./bin/cli.js"
+    "vue-gen-i18n-ai": "./bin/cli.js"
   },
   "files": [
     "bin",
@@ -40,6 +40,7 @@
     "@intlify/unplugin-vue-i18n": "^6.0.3",
     "@vue/compiler-sfc": "^3.5.13",
     "chalk": "^5.4.1",
+    "commander": "^13.1.0",
     "dotenv": "^16.4.7",
     "esno": "^4.8.0",
     "execa": "^9.5.2",
@@ -48,6 +49,7 @@
     "inquirer": "^12.3.0",
     "js-yaml": "^4.1.0",
     "openai": "^4.77.0",
+    "src": "link:/Users/lucian/Program/my/vue3-ai-gen-i18n/src",
     "typescript": "^5.7.2",
     "vue-i18n": "^11.0.1"
   },

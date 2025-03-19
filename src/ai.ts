@@ -34,3 +34,32 @@ export async function askAI(model: string, systemPrompt: string, userPrompt: str
       throw new Error(`Failed to ask ai, error: ${error}`)
     }
 }
+
+export async function askAIWithAssistant(model: string, systemPrompt: string, assistantPrompt: string, userPrompt: string): Promise<null | string> {
+  if(!openai) throw new Error('openai not initialized');
+
+    try {  
+      const response = await openai.chat.completions.create({
+        model: model,
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt,
+          },
+          {
+            role: 'assistant',
+            content: assistantPrompt,
+          },
+          {
+            role: 'user',
+            content: userPrompt,
+          },
+        ],
+      })
+  
+      return response.choices[0].message.content
+    }
+    catch (error) {
+      throw new Error(`Failed to ask ai, error: ${error}`)
+    }
+}

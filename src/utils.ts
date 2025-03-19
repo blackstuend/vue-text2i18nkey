@@ -47,7 +47,7 @@ export function flattenObject(obj: any, prefix = ''): Record<string, any> {
       }
   
       return acc;
-    }, {});
+    }, {} as Record<string, any>);
 }
 
 export function unflattenObject(obj: Record<string, any>): any {
@@ -73,7 +73,7 @@ interface ReplaceMatch {
 }
 
 export function getSearchReplaceBlocks(response: string): ReplaceMatch[] {
-  const regex = /<{3,10} SEARCH\n([\s\S]*?)={3,10}\n([\s\S]*?)>{3,10} REPLACE/gi
+  const regex = /<{3,10} SEARCH\n([\s\S]*?)[=-]{3,10}\n([\s\S]*?)>{3,10} REPLACE/gi
   const matches: ReplaceMatch[] = []
   let match
 

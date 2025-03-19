@@ -1,0 +1,63 @@
+# vue-chinese2i18n
+透過 AI 自動將 vue 中的中文轉換為 i18n 函數調用, 並自動更新 locale 檔案, 解決一些專案一開始未做 i18n 導致後續需要手動轉換浪費大量時間
+
+
+## 使用須知
+1. 透過 openrouter 的 API 進行轉換, 需要先申請 openrouter 的 API key, 並使用 google/gemini-2.0-flash-001 模型, 目前用起來最省錢的做法
+2. 由於 code 是 AI 生成的, 所以可能產出的會有些許錯誤, 建議一次轉換少許的文件, 確認沒有問題後再繼續
+3. 只會轉換 vue 的檔案, 其他檔案不會支援, 而且目前只支援 vue3 composition api  (script setup) 的寫法, 當 script 裡面有文字需要轉換會使用 useI18n 的函數
+
+
+## 前置需求
+
+- Node.js (v16.14.0 or higher)
+- OpenRouter API key
+- Locale file (e.g. zh-CN.json), 如果裡面是空的請先設定一個空的物件
+
+## 使用方式
+
+```bash
+npx vue-chinese2i18n [options]
+
+Options:
+  --file <path>          Process a single Vue file. If not provided and --nested is set,
+                         all Vue files in subdirectories will be processed
+  --use-diff <bool>      Use diff format for changes (default: true)
+                         AI response only sends diff code to reduce token consumption
+                         If set to false, the full code will be returned
+  --nested               Process all Vue files in a directory (default: false)
+```
+
+### 環境變量
+
+在執行工具之前, 請先設置以下環境變量:
+
+- `OPEN_ROUTER_API_KEY`: 你的 OpenRouter API key 用於 AI 服務
+- `LOCALE_FILE_PATH`: 你的 locale 檔案絕對路徑 (e.g. /Users/username/project/locales/zh-CN.json)
+
+```bash
+export OPEN_ROUTER_API_KEY=your_api_key_here
+export LOCALE_FILE_PATH=/absolute/path/to/your/zh-CN.json
+```
+
+### 指令
+建議使用此指令執行, 除非資料夾內有過多檔案, 可以使用下方處理單一文件的方式, 避免有錯誤出現
+```bash
+npx vue-chinese2i18n
+```
+
+處理單一文件:
+```bash
+npx vue-chinese2i18n --file src/App.vue
+```
+
+處理當前目錄及其子目錄中的所有 Vue 文件:
+```bash
+npx vue-chinese2i18n --nested
+```
+
+不使用 diff 格式, ai 回傳完整的 code(注意: 可能會消耗較多 token)
+```bash
+npx vue-chinese2i18n --use-diff false
+```
+

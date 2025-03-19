@@ -1,5 +1,8 @@
 export type Options = {
-    globPath: string;
+    localeFilePath: string;
+    pathNested: boolean;
+    useDiff: boolean;
+    file?: string;
 }
 
 export type I18nTable = {
