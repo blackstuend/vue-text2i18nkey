@@ -7,11 +7,15 @@ import { prompt as genKeySystemPrompt } from "./prompt/genKey";
 import { unflattenObject } from "./utils";
 import { prompt as genVueDiffSystemPrompt } from "./prompt/genVueDiff";
 import { prompt as genFullVueSystemPrompt } from "./prompt/genFullVue";
+import dotenv from 'dotenv';
+
+dotenv.config();
+const defaultModel = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-001';
 
 export async function findNeedToTranslateTexts(filePath: string) {
     const code = extractVueCode(filePath);
 
-    const response = await askAI('google/gemini-2.0-flash-001', findTextSystemPrompt, code);
+    const response = await askAI(defaultModel, findTextSystemPrompt, code);
 
     if(!response) {
         return [];
@@ -49,7 +53,7 @@ export async function createI18nTable(localeJson: Object, texts: string[], fileP
     };
 
     // ask ai to generate the i18n table
-    const response = await askAI('google/gemini-2.0-flash-001', genKeySystemPrompt, `
+    const response = await askAI(defaultModel, genKeySystemPrompt, `
         FilePath: ${filePath}
         Texts: ${JSON.stringify(tempTable)}
         `);
@@ -115,7 +119,7 @@ export async function updateVueFile(filePath: string, i18nTable: I18nTable[], us
     `;
 
     if(useDiff) {
-      const response = await askAIWithAssistant('google/gemini-2.0-flash-001', genVueDiffSystemPrompt, assistantPrompt, originCode);
+      const response = await askAIWithAssistant(defaultModel, genVueDiffSystemPrompt, assistantPrompt, originCode);
 
       if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
 
@@ -125,7 +129,7 @@ export async function updateVueFile(filePath: string, i18nTable: I18nTable[], us
   
       fs.writeFileSync(filePath, updatedCode);
     } else {
-      const response = await askAIWithAssistant('google/gemini-2.0-flash-001', genFullVueSystemPrompt, assistantPrompt, originCode);
+      const response = await askAIWithAssistant(defaultModel, genFullVueSystemPrompt, assistantPrompt, originCode);
 
       if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
 

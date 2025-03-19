@@ -3,7 +3,7 @@
 
 
 ## 使用須知
-1. 透過 openrouter 的 API 進行轉換, 需要先申請 openrouter 的 API key, 並使用 google/gemini-2.0-flash-001 模型, 目前用起來最省錢的做法
+1. 透過 openrouter 的 API 進行轉換, 需要先申請 openrouter 的 API key
 2. 由於 code 是 AI 生成的, 所以可能產出的會有些許錯誤, 建議一次轉換少許的文件, 確認沒有問題後再繼續
 3. 只會轉換 vue 的檔案, 其他檔案不會支援, 而且目前只支援 vue3 composition api  (script setup) 的寫法, 當 script 裡面有文字需要轉換會使用 useI18n 的函數
 
@@ -34,10 +34,12 @@ Options:
 
 - `OPEN_ROUTER_API_KEY`: 你的 OpenRouter API key 用於 AI 服務
 - `LOCALE_FILE_PATH`: 你的 locale 檔案絕對路徑 (e.g. /Users/username/project/locales/zh-CN.json)
+- `OPENROUTER_MODEL`: 你的 AI 模型, 目前推薦是 google/gemini-2.0-pro-exp-02-05:free, 如果不帶 default 會使用 google/gemini-2.0-flash-001
 
 ```bash
 export OPEN_ROUTER_API_KEY=your_api_key_here
 export LOCALE_FILE_PATH=/absolute/path/to/your/zh-CN.json
+export OPENROUTER_MODEL=google/gemini-2.0-pro-exp-02-05:free
 ```
 
 ### 指令
