@@ -48,6 +48,8 @@ export async function execute(options: Options) {
         })
     }
 
+    console.log('File count: ', files.length);
+
     for(const file of files) {
         try {
             console.log('Start to process file: ', file);
