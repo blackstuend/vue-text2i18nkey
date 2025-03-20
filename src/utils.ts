@@ -63,7 +63,7 @@ export function unflattenObject(obj: Record<string, any>): any {
         
         current[parts[parts.length - 1]] = obj[key];
         return acc;
-    }, {});
+    }, {} as Record<string, any>);
 }
 
 

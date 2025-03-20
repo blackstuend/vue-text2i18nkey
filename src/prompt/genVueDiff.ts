@@ -7,6 +7,7 @@ IMPORTANT:
   2. If no transformation is needed, simply respond with "No changes needed."
   3. Process the file STRICTLY sequentially from top to bottom.
   4. CRITICAL: Process the ENTIRE file from beginning to end, leaving no Chinese text unprocessed, especially at the end of the file.
+  5. DO NOT CHANGE ANY COMMENT TEXT. Comments (<!-- --> in template, // or /* */ in script) should remain untouched.
 
 *SEARCH/REPLACE* BLOCK FORMAT:
 Every *SEARCH/REPLACE* block must use this format:
@@ -141,6 +142,7 @@ For a file like this:
 \`\`\`vue
 <template>
   <div>
+    <!-- 这是添加新联络人的表单 -->
     <h1>新增联络人</h1>
     <input placeholder="输入欲搜寻的帐号ID">
     <p>您当前的积分为{points}分，距离下一等级还需要{neededPoints}分</p>
@@ -149,10 +151,12 @@ For a file like this:
 <script>
 export default {
   setup() {
+    // 添加联络人的函数
     const addContact = () => {
       Message.error('无法加入自己为联络人');
     }
     
+    // 显示错误信息
     const showError = (error) => {
       Message.error('错误消息: ' + error);
     }
@@ -238,4 +242,5 @@ REMEMBER:
 2. Keep blocks small and focused on specific changes.
 3. Make sure to add the necessary i18n imports and setup when needed.
 4. Make sure your search blocks exactly match the original code.
+5. NEVER modify or translate comments - leave all comments in their original language.
 ` 
