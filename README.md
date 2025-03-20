@@ -20,12 +20,13 @@
 npx vue-chinese2i18n [options]
 
 Options:
-  --file <path>          Process a single Vue file. If not provided and --nested is set,
-                         all Vue files in subdirectories will be processed
-  --use-diff <bool>      Use diff format for changes (default: true)
-                         AI response only sends diff code to reduce token consumption
-                         If set to false, the full code will be returned
-  --nested               Process all Vue files in a directory (default: false)
+  --file <path>          處理單一 Vue 文件。如果未提供且設置了 --nested，
+                         將處理所有子目錄中的 Vue 文件
+  --use-diff <bool>      使用差異格式進行更改（默認：true）
+                         AI 響應僅發送差異代碼以減少令牌消耗
+                         如果設置為 false，將返回完整代碼
+  --nested               處理目錄中的所有 Vue 文件（默認：false）
+  --with-cache <bool>    使用緩存跳過已處理的文件, 會將成功處理與失敗的文件記錄在 .vue-chinese2i18n.json 中（默認：true）
 ```
 
 ### 環境變量
@@ -34,7 +35,7 @@ Options:
 
 - `OPEN_ROUTER_API_KEY`: 你的 OpenRouter API key 用於 AI 服務
 - `LOCALE_FILE_PATH`: 你的 locale 檔案絕對路徑 (e.g. /Users/username/project/locales/zh-CN.json)
-- `OPENROUTER_MODEL`: 你的 AI 模型, 目前推薦是 google/gemini-2.0-pro-exp-02-05:free, 如果不帶 default 會使用 google/gemini-2.0-flash-001
+- `OPENROUTER_MODEL`: 你的 AI 模型, 目前推薦是 google/gemini-2.0-pro-exp-02-05:free 但有使用限制需注意, 如果不帶 default 會使用 google/gemini-2.0-flash-001
 
 ```bash
 export OPEN_ROUTER_API_KEY=your_api_key_here

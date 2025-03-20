@@ -6,8 +6,11 @@ IMPORTANT:
   1. YOU MUST RETURN YOUR CHANGES IN *SEARCH/REPLACE* BLOCKS. NEVER output the entire transformed file.
   2. If no transformation is needed, simply respond with "No changes needed."
   3. Process the file STRICTLY sequentially from top to bottom.
-  4. CRITICAL: Process the ENTIRE file from beginning to end, leaving no Chinese text unprocessed, especially at the end of the file.
-  5. DO NOT CHANGE ANY COMMENT TEXT. Comments (<!-- --> in template, // or /* */ in script) should remain untouched.
+  4. YOUR RESPONSE MUST FOLLOW THE EXACT SAME ORDER AS THE ORIGINAL CODE, PROCESSING ELEMENTS SEQUENTIALLY WITHOUT REPETITION.
+  5. CRITICAL: Process the ENTIRE file from beginning to end, leaving no Chinese text unprocessed, especially at the end of the file.
+  6. DO NOT CHANGE ANY COMMENT TEXT. Comments (<!-- --> in template, // or /* */ in script) should remain untouched.
+  7. DO NOT process text that is already using i18n functions ($t, t, etc). Only transform raw Chinese text.
+  8. VERIFY every replacement carefully - do not repeat or duplicate areas that are already internationalized.
 
 *SEARCH/REPLACE* BLOCK FORMAT:
 Every *SEARCH/REPLACE* block must use this format:
@@ -22,6 +25,14 @@ Every *SEARCH/REPLACE* block must use this format:
 Keep *SEARCH/REPLACE* blocks concise. Break large changes into smaller blocks that each change a small portion of the file.
 Include just the changing lines and a few surrounding lines for context if needed.
 Do not include long runs of unchanging lines.
+
+SEARCH BLOCKS MUST MATCH EXACTLY:
+1. The content in each search block must match EXACTLY with the original file, but can fuzzy match the key/value pairs provided in I18nTable
+2. DO NOT add or change any whitespace, indentation, or characters in search blocks
+3. If content contains {{ $t(...) }} or similar, copy it exactly without modifying it
+4. Include enough surrounding context to ensure unique matches
+5. Search blocks that don't match exactly will cause the replacement to fail
+
 
 I18N IMPLEMENTATION:
   1. TEMPLATE vs SCRIPT USAGE:
@@ -58,7 +69,7 @@ I18N IMPLEMENTATION:
      <<<<<<< SEARCH
      <div>新增联络人</div>
      =======
-     <div>\{{ $t('namespace.addContact') }}</div>
+     <div>{{ $t('namespace.addContact') }}</div>
      >>>>>>> REPLACE
      \`\`\`
 
@@ -68,6 +79,15 @@ I18N IMPLEMENTATION:
      <input placeholder="输入欲搜寻的帐号ID">
      =======
      <input :placeholder="$t('namespace.searchAccountId')">
+     >>>>>>> REPLACE
+     \`\`\`
+
+     TEMPLATE LABEL ATTRIBUTES:
+     \`\`\`vue
+     <<<<<<< SEARCH
+     <el-tab-pane label="联络人列表" :name="Category.Contact">
+     =======
+     <el-tab-pane :label="$t('directory.contactList')" :name="Category.Contact">
      >>>>>>> REPLACE
      \`\`\`
 
@@ -94,7 +114,7 @@ I18N IMPLEMENTATION:
      <<<<<<< SEARCH
      <div>欢迎来到{appName}的官方网站</div>
      =======
-     <div>\{{ $t('hello.welcomeWebsite', { variable1: appName }) }}</div>
+     <div>{{ $t('hello.welcomeWebsite', { variable1: appName }) }}</div>
      >>>>>>> REPLACE
      \`\`\`
 
@@ -124,9 +144,15 @@ VARIABLE HANDLING:
 
 TEMPLATE RULES:
   - ALWAYS use $t() in templates, not t()
-  - Replace Chinese text in tags with \{{ $t('namespace.key') }}
+  - Replace Chinese text in tags with {{ $t('namespace.key') }}
   - Replace Chinese text in attributes with :attribute="$t('namespace.key')"
-  - For text with variables: \{{ $t('namespace.key', { variableX: variable }) }}
+  - For any HTML attribute containing Chinese text, convert it to use :attribute="$t('namespace.key')" format
+  - Examples:
+    - label="中文" becomes :label="$t('namespace.key')"
+    - placeholder="输入文字" becomes :placeholder="$t('namespace.key')" 
+    - title="提示" becomes :title="$t('namespace.key')"
+    - alt="图片描述" becomes :alt="$t('namespace.key')"
+  - For text with variables: {{ $t('namespace.key', { variableX: variable }) }}
   - Match the variable format in zh-CN.json: { variable1 }, { variable2 }, etc.
 
 SCRIPT RULES:
@@ -136,6 +162,20 @@ SCRIPT RULES:
   - ALWAYS add i18n imports when using ANY t() calls in script sections
   - This applies for both simple t() calls and t() with variables
 
+SKIPPING EXISTING INTERNATIONALIZED CONTENT:
+  - DO NOT process content already using i18n functions
+  - If a line contains $t() or t(), do not modify it
+  - Avoid duplicate transformations
+  - Check both before and after text to ensure you're not processing already transformed text
+  - If the text contains {{ $t(...) }} or t(...), don't create a *SEARCH/REPLACE* block for it
+
+ORDER AND NON-DUPLICATION:
+  - PROCESS THE FILE STRICTLY FROM TOP TO BOTTOM
+  - NEVER GENERATE SEARCH/REPLACE BLOCKS FOR THE SAME TEXT OR CODE REGION TWICE
+  - YOUR RESPONSE MUST FOLLOW THE EXACT SAME ORDER AS THE ORIGINAL CODE
+  - DO NOT JUMP BACK TO EARLIER SECTIONS OF THE CODE AFTER PROCESSING LATER SECTIONS
+  - EACH SEARCH/REPLACE BLOCK MUST APPEAR IN THE SAME SEQUENTIAL ORDER AS THE TEXT APPEARS IN THE FILE
+
 COMPLETE EXAMPLE:
 
 For a file like this:
@@ -144,8 +184,12 @@ For a file like this:
   <div>
     <!-- 这是添加新联络人的表单 -->
     <h1>新增联络人</h1>
+    <div label="输入欲搜寻的帐号ID">
+    </div>
     <input placeholder="输入欲搜寻的帐号ID">
     <p>您当前的积分为{points}分，距离下一等级还需要{neededPoints}分</p>
+    <el-tab-pane label="联络人列表" :name="Category.Contact">
+    </el-tab-pane>
   </div>
 </template>
 <script>
@@ -169,16 +213,22 @@ export default {
 
 Your response should be:
 
-path/to/SomeComponent.vue
 \`\`\`vue
 <<<<<<< SEARCH
 <h1>新增联络人</h1>
 =======
-<h1>\{{ $t('contact.addContact') }}</h1>
+<h1>{{ $t('contact.addContact') }}</h1>
 >>>>>>> REPLACE
 \`\`\`
 
-path/to/SomeComponent.vue
+\`\`\`vue
+<<<<<<< SEARCH
+<div label="输入欲搜寻的帐号ID">
+=======
+<div :label="$t('contact.searchAccountId')">
+>>>>>>> REPLACE
+\`\`\`
+
 \`\`\`vue
 <<<<<<< SEARCH
 <input placeholder="输入欲搜寻的帐号ID">
@@ -187,16 +237,22 @@ path/to/SomeComponent.vue
 >>>>>>> REPLACE
 \`\`\`
 
-path/to/SomeComponent.vue
 \`\`\`vue
 <<<<<<< SEARCH
 <p>您当前的积分为{points}分，距离下一等级还需要{neededPoints}分</p>
 =======
-<p>\{{ $t('user.pointsInfo', { variable1: points, variable2: neededPoints }) }}</p>
+<p>{{ $t('user.pointsInfo', { variable1: points, variable2: neededPoints }) }}</p>
 >>>>>>> REPLACE
 \`\`\`
 
-path/to/SomeComponent.vue
+\`\`\`vue
+<<<<<<< SEARCH
+<el-tab-pane label="联络人列表" :name="Category.Contact">
+=======
+<el-tab-pane :label="$t('directory.contactList')" :name="Category.Contact">
+>>>>>>> REPLACE
+\`\`\`
+
 \`\`\`vue
 <<<<<<< SEARCH
 <script>
@@ -209,7 +265,6 @@ export default {
 >>>>>>> REPLACE
 \`\`\`
 
-path/to/SomeComponent.vue
 \`\`\`vue
 <<<<<<< SEARCH
   setup() {
@@ -219,7 +274,6 @@ path/to/SomeComponent.vue
 >>>>>>> REPLACE
 \`\`\`
 
-path/to/SomeComponent.vue
 \`\`\`vue
 <<<<<<< SEARCH
       Message.error('无法加入自己为联络人');
@@ -228,7 +282,6 @@ path/to/SomeComponent.vue
 >>>>>>> REPLACE
 \`\`\`
 
-path/to/SomeComponent.vue
 \`\`\`vue
 <<<<<<< SEARCH
       Message.error('错误消息: ' + error);
@@ -243,4 +296,8 @@ REMEMBER:
 3. Make sure to add the necessary i18n imports and setup when needed.
 4. Make sure your search blocks exactly match the original code.
 5. NEVER modify or translate comments - leave all comments in their original language.
+6. DO NOT process text that is already using i18n functions ($t, t, etc).
+7. Pay special attention to 'label' attributes which need the colon prefix for dynamic binding (:label).
+8. PROCESS THE FILE STRICTLY FROM TOP TO BOTTOM - never jump backwards or duplicate changes.
+9. Each SEARCH/REPLACE block must follow the same sequential order as the text appears in the original code.
 ` 

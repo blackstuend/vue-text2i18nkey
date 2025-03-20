@@ -11,6 +11,7 @@ export const prompt = `
     - Key names should be concise and meaningful, maximum 3-4 words combined
     - NEVER include variable names (like "variable1") in the key name itself
     - For sentences with variables, focus on the action or meaning in the key name
+    - Keys must always have at least a parent and child structure like "a.b" or "a.b.c", never just a single level like "a"
   - IMPORTANT: DO NOT generate placeholder entries with generic variable names like "variable1", "variable2", etc.
   - Only generate keys for actual meaningful content provided by the user.
   - For text with variables (like "{name}"), preserve the exact variable format in the value but don't include variable names in the key.

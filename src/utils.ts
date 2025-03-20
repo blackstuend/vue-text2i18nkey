@@ -63,7 +63,7 @@ export function unflattenObject(obj: Record<string, any>): any {
         
         current[parts[parts.length - 1]] = obj[key];
         return acc;
-    }, {} as Record<string, any>);
+      }, {} as Record<string, any>);
 }
 
 
@@ -97,4 +97,20 @@ export function replaceCode(originCode: string, matches: ReplaceMatch[]) {
     result = newResult
   })
   return result
+}
+
+export function removeComments(code: string) {
+  // 移除單行註解
+  const singleLineCommentRegex = /\/\/.*/g;
+  const codeWithoutSingleLineComments = code.replace(singleLineCommentRegex, '');
+
+  // 移除多行註解
+  const multiLineCommentRegex = /\/\*[\s\S]*?\*\//g;
+  const codeWithoutMultiLineComments = codeWithoutSingleLineComments.replace(multiLineCommentRegex, '');
+
+  // 移除註解在 template 中
+  const templateCommentRegex = /<!--[\s\S]*?-->/g;
+  const codeWithoutTemplateComments = codeWithoutMultiLineComments.replace(templateCommentRegex, '');
+
+  return codeWithoutTemplateComments;
 }

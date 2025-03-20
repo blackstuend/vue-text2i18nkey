@@ -11,6 +11,7 @@ program
   .option('--file <path>', 'Process a single Vue file, if not provided and --nested is set, all Vue files in subdirectories will be processed')
   .option('--use-diff <bool>', 'Use diff format for changes', true)
   .option('--nested', 'Process all Vue files in a directory', false)
+  .option('--with-cache <bool>', 'Use cache to skip processed files', true)
   .parse(process.argv);
 
 const options = program.opts();
@@ -20,6 +21,7 @@ const defaultOption: Options = {
   pathNested: options.nested,
   useDiff: options.useDiff,
   file: options.file,
+  withCache: options.withCache,
 };
 
 if (!defaultOption.localeFilePath || !fs.existsSync(defaultOption.localeFilePath)) {

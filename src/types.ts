@@ -3,6 +3,7 @@ export type Options = {
     pathNested: boolean;
     useDiff: boolean;
     file?: string;
+    withCache?: boolean;
 }
 
 export type I18nTable = {

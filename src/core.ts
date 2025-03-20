@@ -1,5 +1,5 @@
 import { askAI, askAIWithAssistant } from "./ai";
-import { extractVueCode, flattenObject, replaceCode, getSearchReplaceBlocks } from "./utils";
+import { extractVueCode, flattenObject, replaceCode, getSearchReplaceBlocks, removeComments } from "./utils";
 import { prompt as findTextSystemPrompt } from "./prompt/findText";
 import { I18nTable } from "./types";
 import fs from 'fs-extra';
@@ -14,9 +14,10 @@ const defaultModel = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-00
 
 export async function findNeedToTranslateTexts(filePath: string) {
     const code = extractVueCode(filePath);
+    const codeWithoutComments = removeComments(code);
 
-    const response = await askAI(defaultModel, findTextSystemPrompt, code);
-
+    const response = await askAI(defaultModel, findTextSystemPrompt, codeWithoutComments);
+    
     if(!response) {
         return [];
     }
@@ -25,10 +26,14 @@ export async function findNeedToTranslateTexts(filePath: string) {
     const matches = response.match(regex);
 
     if (matches) {
-      return matches.map(match => {
+      let result = matches.map(match => {
         // Remove === and trim whitespace
         return match.replace(/===\n|\n===/g, '').trim();
       });
+
+      result = result.filter(text => codeWithoutComments.includes(text));
+
+      return result;
     } else {
        return [];
     }
@@ -82,7 +87,7 @@ export async function createI18nTable(localeJson: Object, texts: string[], fileP
 }
 
 export async function combinedLocaleFile(localeJson: Object, i18nTable: I18nTable[]): Promise<Object> {
-    const i18nTableMap = i18nTable.reduce((acc, item) => {
+    const i18nTableMap = i18nTable.reduce((acc: any, item) => {
         acc[item.key] = item.value;
         return acc;
     }, {});
