@@ -1,11 +1,11 @@
 {
-  "name": "vue-chinese2i18n",
+  "name": "vue-text2i18nkey",
   "type": "module",
   "version": "0.1.2",
   "description": "快速將vue文件中的中文轉換為i18n函數調用",
   "author": "Lucian",
   "license": "MIT",
-  "homepage": "https://github.com/blackstuend/vue-chinese2i18n",
+  "homepage": "https://github.com/blackstuend/vue-text2i18nkey",
   "keywords": [
     "vue",
     "vite",

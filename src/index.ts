@@ -22,7 +22,7 @@ export async function execute(options: Options) {
 
     const globPath = pathNested ? '**/*.vue' : '*.vue';
 
-    const cache = withCache ? new Cache(path.resolve(process.cwd(), '.vue-chinese2i18n.json')) : null;
+    const cache = withCache ? new Cache(path.resolve(process.cwd(), '.vue-text2i18nkey.json')) : null;
     
     if(withCache && cache) {
         cache.load();
