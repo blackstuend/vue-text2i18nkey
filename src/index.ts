@@ -18,11 +18,12 @@ initAi();
 
 let faileCount = 0;
 export async function execute(options: Options) {
-    let { localeFilePath, pathNested, useDiff, withCache } = options;
+    let { localeFilePath, pathNested, withCache } = options;
 
     const globPath = pathNested ? '**/*.vue' : '*.vue';
 
     const cache = withCache ? new Cache(path.resolve(process.cwd(), '.vue-chinese2i18n.json')) : null;
+    
     if(withCache && cache) {
         cache.load();
     }
@@ -37,9 +38,9 @@ export async function execute(options: Options) {
         });
     }
 
-    if(cache) {
+    if(withCache && cache) {
         files = files.filter(file => {
-            const cacheInfo = cache.get(file);
+            const cacheInfo = cache?.get(file);
             if(cacheInfo) {
                 return !cacheInfo.success;
             }
@@ -55,11 +56,11 @@ export async function execute(options: Options) {
             console.log('Start to process file: ', file);
 
             const texts = await findNeedToTranslateTexts(file)
-            
+
             if(texts.length <= 0) {
                 console.log('No need to translate texts, skip file: ', file);
 
-                if(cache) {
+                if(withCache && cache) {
                     cache?.add(file, true);
                     cache.save();
                 }
@@ -82,14 +83,15 @@ export async function execute(options: Options) {
             EOL: '\n'
            });
            
-           await updateVueFile(file, map, useDiff);
+           await updateVueFile(file, map);
            
-           if(cache) {
+           if(withCache && cache) {
                console.log('Finish to process file: ', file);
                cache?.add(file, true);
                cache.save();
            }
 
+           console.log('Finish to process file: ', file);
            faileCount = 0;
         } catch(error) {
             faileCount++;
@@ -98,7 +100,7 @@ export async function execute(options: Options) {
                 throw new Error('Failed over 5 times, please check the log');
             }
 
-            if(cache) {
+            if(withCache && cache) {
                 console.log('Failed to process file: ', file);
                 cache?.add(file, false, (error as Error).message);
                 cache.save();

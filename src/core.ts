@@ -14,10 +14,11 @@ const defaultModel = process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-00
 
 export async function findNeedToTranslateTexts(filePath: string) {
     const code = extractVueCode(filePath);
+
     const codeWithoutComments = removeComments(code);
 
     const response = await askAI(defaultModel, findTextSystemPrompt, codeWithoutComments);
-    
+
     if(!response) {
         return [];
     }
@@ -31,8 +32,9 @@ export async function findNeedToTranslateTexts(filePath: string) {
         return match.replace(/===\n|\n===/g, '').trim();
       });
 
-      result = result.filter(text => codeWithoutComments.includes(text));
-
+      // filter response only have { variable }
+      result = result.filter(item => !/^\{\s*variable\d+\s*\}$/.test(item));
+      
       return result;
     } else {
        return [];
@@ -116,28 +118,20 @@ export async function combinedLocaleFile(localeJson: Object, i18nTable: I18nTabl
     return combinedJson;
 }
 
-export async function updateVueFile(filePath: string, i18nTable: I18nTable[], useDiff: boolean) {
+export async function updateVueFile(filePath: string, i18nTable: I18nTable[]) {
     const originCode = fs.readFileSync(filePath, 'utf-8');
 
     const assistantPrompt = `
     I18nTable: ${JSON.stringify(i18nTable)}
     `;
 
-    if(useDiff) {
-      const response = await askAIWithAssistant(defaultModel, genVueDiffSystemPrompt, assistantPrompt, originCode);
+    const response = await askAIWithAssistant(defaultModel, genVueDiffSystemPrompt, assistantPrompt, originCode);
 
-      if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
+    if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
 
-      const searchReplaceBlocks = getSearchReplaceBlocks(response).reverse();
+    const searchReplaceBlocks = getSearchReplaceBlocks(response).reverse();
 
-      const updatedCode = replaceCode(originCode, searchReplaceBlocks);
-  
-      fs.writeFileSync(filePath, updatedCode);
-    } else {
-      const response = await askAIWithAssistant(defaultModel, genFullVueSystemPrompt, assistantPrompt, originCode);
+    const updatedCode = replaceCode(originCode, searchReplaceBlocks);
 
-      if(!response) throw new Error('ask ai for updateVue failed, response: ' + response);
-
-      fs.writeFileSync(filePath, response);
-    }
+    fs.writeFileSync(filePath, updatedCode);
   }

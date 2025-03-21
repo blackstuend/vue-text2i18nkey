@@ -1,7 +1,6 @@
 export type Options = {
     localeFilePath: string;
     pathNested: boolean;
-    useDiff: boolean;
     file?: string;
     withCache?: boolean;
 }
