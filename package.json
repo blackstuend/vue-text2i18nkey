@@ -1,7 +1,7 @@
 {
   "name": "vue-text2i18nkey",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "description": "快速將vue文件中的中文轉換為i18n函數調用",
   "author": "Lucian",
   "license": "MIT",
